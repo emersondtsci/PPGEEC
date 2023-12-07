@@ -7,7 +7,7 @@ O projeto utiliza partículas em queda para a formação da sigla PPGEEC e ilumi
 
 
 ## Funcionalidades
-As funcionalidades que o programa apresenta é a mudança de cor das partículas e a mudança de iluminação embora não seja perceptível.
+As funcionalidades que o programa apresenta é a mudança de cor das partículas e a mudança de iluminação embora não seja perceptível. Link do vídeo explicativo: https://youtu.be/hg2P365dj38
 
 ## Como os usuários podem utilizá-lo;
 Para utilizar o programa, basta executar o arquivo "Partículas_ppgeec.html"
