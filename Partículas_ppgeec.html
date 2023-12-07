@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PPGEEC - Partículas com Three.js</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+    button { position: absolute; top: 10px; left: 10px; padding: 10px; }
+  </style>
+</head>
+<body>
+  <!-- Adicionando botão para mudar a cor das partículas -->
+  <button onclick="changeParticleColor()">Mudar Cor do Texto</button>
+
+  <script>
+    const scene = new THREE.Scene(); // Cria uma cena
+    const camera = new THREE.PerspectiveCamera(105, window.innerWidth / window.innerHeight, 0.1, 1000); // Cria uma câmera de perspectiva
+    const renderer = new THREE.WebGLRenderer(); // Cria um renderer WebGL
+    renderer.setSize(window.innerWidth, window.innerHeight); // Define o tamanho do renderer
+    document.body.appendChild(renderer.domElement); // Adiciona o elemento do renderer ao HTML
+
+    const light = new THREE.PointLight(0xffffff, 1, 100); // Cria uma luz pontual
+    light.position.set(0, 0, 10); // Define a posição da luz
+    scene.add(light); // Adiciona a luz à cena
+
+    let particleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Material inicial das partículas
+
+    function createParticleText(text, x, y, z, size) {
+      const particles = new THREE.Group(); // Grupo para armazenar as partículas
+      
+      const fontLoader = new THREE.FontLoader(); // Carrega uma fonte para o criação do texto
+      fontLoader.load('https://threejs.org/examples/fonts/optimer_regular.typeface.json', function (font) { // Carrega a nova fonte
+        const textGeometry = new THREE.TextGeometry(text, { // Cria a geometria do texto
+          font: font,
+          size: size,
+          height: 1,
+          curveSegments: 12,
+          bevelEnabled: false
+        });
+
+        const particleGeometry = new THREE.SphereGeometry(0.05, 4, 4); // Geometria das partículas (esferas pequenas)
+
+        for (let i = 0; i < textGeometry.attributes.position.count; i++) {
+          const position = new THREE.Vector3();
+          position.fromBufferAttribute(textGeometry.attributes.position, i).multiplyScalar(size); // Calcula a posição do ponto no espaço
+
+          for (let j = 0; j < 6; j++) {
+            const particle = new THREE.Mesh(particleGeometry, particleMaterial); // Cria uma partícula
+            // Define a posição inicial da partícula e ajusta a profundidade Z aleatoriamente
+            particle.position.set(position.x + x, window.innerHeight / 2 + 20, position.z + z + Math.random() * 10);
+            particles.add(particle); // Adiciona a partícula ao grupo
+
+            const targetPosition = new THREE.Vector3(position.x + x, position.y + y, position.z + z); // Define a posição alvo para a queda da partícula
+            const fallSpeed = Math.random() * 10 + 2; // Velocidade de queda aleatória
+            const delay = Math.random() * 7; // Atraso de queda aleatório
+            gsap.to(particle.position, { duration: fallSpeed, x: targetPosition.x, y: targetPosition.y, z: targetPosition.z, delay: delay }); // Anima a queda da partícula usando GSAP
+          }
+        }
+      });
+
+      return particles; // Retorna o grupo de partículas
+    }
+
+    const particleText = createParticleText('P P G 3 3 C', -8, 0, 0, 5); // Cria as partículas para representar a sigla "PPGEEC"
+    scene.add(particleText); // Adiciona as partículas à cena
+
+    camera.position.z = 80; // Define a posição Z da câmera
+
+    const animate = function () {
+      requestAnimationFrame(animate); // Cria um loop de animação
+
+      renderer.render(scene, camera); // Renderiza a cena com a câmera especificada
+
+      particleText.rotation.x += 0.02; // Adiciona rotação ao texto em torno do eixo X
+      particleText.rotation.y += 0.02; // Adiciona rotação ao texto em torno do eixo Y
+    };
+
+    animate(); // Inicia a animação
+
+    window.addEventListener('resize', function () {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      renderer.setSize(width, height);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    });
+
+    function changeParticleColor() {
+      const randomColor = Math.random() * 0xffffff; // Gera uma cor aleatória
+      particleMaterial = new THREE.MeshBasicMaterial({ color: randomColor }); // Atualiza o material das partículas com a nova cor
+      particleText.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.material = particleMaterial; // Altera o material de cada partícula para a nova cor
+        }
+      });
+    }
+  </script>
+</body>
+</html>
